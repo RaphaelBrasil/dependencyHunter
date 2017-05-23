@@ -10,7 +10,7 @@ no257 <-packet[packet$Source == 257, ]  ### Linhas com source igual a 257
 no258 <-packet[packet$Source == 258, ]  ### Linhas com source igual a 258
 no512 <-packet[packet$Source == 512, ]  ### Linhas com source igual a 512
 no513 <-packet[packet$Source == 512, ]  ### Linhas com source igual a 513
-no514 <-packet[packet$Source == 512, ]  ### Linhas com source igual a 514
+no514 <-packet[packet$Source == 512, ]  ###  Linhas com source igual a 514
 
 a <- as.vector(t(no1$Header))             ### Transpõe os valores da coluna Header no nó 1
 b <- as.vector(t(no512$Header))           ### Transpõe os valores da coluna Header no nó 2
