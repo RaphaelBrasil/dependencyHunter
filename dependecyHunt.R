@@ -1,5 +1,5 @@
 library(readxl)
-packet <- read_excel("C:/Users/Rogério/Documents/R/Pacotes Hemps MPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
+packet <- read_excel("C:/Users/Rogério/Documents/Raphael/dependecyHunter/dependecyHunter/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
 
 
 no0   <-packet[packet$Source == 0, ]    ### Linhas com source igual a 0
