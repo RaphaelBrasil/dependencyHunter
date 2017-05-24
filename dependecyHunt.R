@@ -1,24 +1,53 @@
 library(readxl)
-packet <- read_excel("C:/dependecyHunter/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
+packet <- read_excel("/home/raphael/Documentos/depedencyHunter/dependecyHunter/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
+
+noOrigem   <- 1###scan()
+noDestino  <- 2###scan()
+
+if((noOrigem > 0) || (noDestino > 0)){
+switch(noOrigem, 
+       0=={
+         noor <- packet[packet$Source == 0, ]
+       },
+       1=={
+         noor <- packet[packet$Source == 1, ]   
+       },
+       2=={
+         noor <- packet[packet$Source == 2, ]   
+       },
+       256=={
+         noor <- packet[packet$Source == 256, ]   
+       },
+       257=={
+         noor <- packet[packet$Source == 257, ]   
+       },
+       258=={
+         noor <- packet[packet$Source == 258, ]    
+       },
+       512=={
+         noor <- packet[packet$Source == 512, ]   
+       },
+       513=={
+         noor <- packet[packet$Source == 513, ]   
+       },
+       514=={
+         noor <- packet[packet$Source == 514, ]    
+       }
+)
+
+  node <- noor[noor$Target == noDestino, ]
 
 
-no0   <-packet[packet$Source == 0, ]    ### Linhas com source igual a 0
-no1   <-packet[packet$Source == 1, ]    ### Linhas com source igual a 1
-no2   <-packet[packet$Source == 2, ]    ### Linhas com source igual a 2
-no256 <-packet[packet$Source == 256, ]  ### Linhas com source igual a 256
-no257 <-packet[packet$Source == 257, ]  ### Linhas com source igual a 257
-no258 <-packet[packet$Source == 258, ]  ### Linhas com source igual a 258
-no512 <-packet[packet$Source == 512, ]  ### Linhas com source igual a 512
-no513 <-packet[packet$Source == 512, ]  ### Linhas com source igual a 513
-no514 <-packet[packet$Source == 512, ]  ###  Linhas com source igual a 514
+}
 
-a <- as.vector(t(no1$Header))             ### Transpõe os valores da coluna Header no nó 1
-b <- as.vector(t(no512$Header))           ### Transpõe os valores da coluna Header no nó 2
+a <- as.vector(t(noor$Header))                ### Transpõe os valores da coluna Header no nó 1
+b <- as.vector(t(node$Header))                ### Transpõe os valores da coluna Header no nó 2
+###noDestino <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nó
 MACROA <- length(a)
 MACROB <- length(b)
 
 ### Valor MACROdependecy com tamanho do vetor de dependecy, deve ter tamanho igual ao número de pacotes enviados pelo segundo nó.
-if (MACROB > MACROA){
+if (MACROB < MACROA){
   MACROdependecy <- MACROB
 } else{
   MACROdependecy <- MACROA
@@ -41,4 +70,5 @@ for(i in 1:MACROB){                               ### Números de pacotes do nó B
 }
 
 dependecy
+
 
