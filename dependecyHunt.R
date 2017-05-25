@@ -1,17 +1,21 @@
 library(readxl)
+library(hashmap)
 packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
 
-noDestino  <- 1 ###scan()
+nodeTarget  <- 1 ###scan()
 
 
-node <- packet[packet$Target == noDestino, ]  ### Todos os pacotes com Target == noDestino  
-noor <- packet[packet$Source == noDestino, ]  ### Todos os pacotes com Source == noDestino
-final <- merge(x = node, y = noor, by = "Header", all = TRUE)
+targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos os pacotes com Target == nodeTarget  
+sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos os pacotes com Source == nodeTarget
+final <- merge(x = targetNode, y = sourceNode, by = "Header", all = TRUE)
+write.table(final, file = "pacotes.txt",sep = "\t",eol = "\n", na = "-",row.names = FALSE)
+
+UniqueValues <- unique(final[,-1])
 
 
-a <- as.vector(t(noor$Header))                ### Transpõe os valores da coluna Header no nó 1
-b <- as.vector(t(node$Header))                ### Transpõe os valores da coluna Header no nó 2
-###noDestino <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nó
+a <- as.vector(t(sourceNode$Header))                ### Transpõe os valores da coluna Header no nó 1
+b <- as.vector(t(targetNode$Header))                ### Transpõe os valores da coluna Header no nó 2
+###nodeTarget <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nó
 MACROA <- length(a)
 MACROB <- length(b)
 
