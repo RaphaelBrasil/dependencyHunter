@@ -1,5 +1,4 @@
 library(readxl)
-<<<<<<< HEAD
 packet <- read_excel("/home/raphael/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
 
 nodeTarget  <- 257 ###scan()
