@@ -1,4 +1,5 @@
 library(readxl)
+<<<<<<< HEAD
 packet <- read_excel("/home/raphael/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
 
 nodeTarget  <- 257 ###scan()
@@ -45,18 +46,46 @@ for(i in 1:numRow){
 }
 }
 
+=======
+library(hashmap)
+packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulaÃ§Ã£o.
+
+nodeTarget  <- 257 ###scan()
+
+>>>>>>> e294b6c56f5ab09c977c6f9fd64debbbe2d263a9
+
+targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos os pacotes com Target == nodeTarget  
+sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos os pacotes com Source == nodeTarget
+mergedTable <- merge(x = targetNode, y = sourceNode, 
+               by = c("Header","Source", "Address","Service","Payload","Target"), all = TRUE)
+##write.table(final, file = "pacotes.txt",sep = "\t",eol = "\n", na = "-",row.names = FALSE)
+refinedData <- subset(final, !(Source != Address & Address != Target)) ##Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos
+UniqueValues <- unique(final[,-1])
 
 
 
 
-
+<<<<<<< HEAD
 a <- as.vector(t(sourceNode$Timestamp))                ### Transpõe os valores da coluna Header no nó 1
 b <- as.vector(t(targetNode$Timestamp))                ### Transpõe os valores da coluna Header no nó 2
 ###nodeTarget <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nó
+=======
+
+
+
+
+
+
+
+
+a <- as.vector(t(sourceNode$Header))                ### TranspÃµe os valores da coluna Header no nÃ³ 1
+b <- as.vector(t(targetNode$Header))                ### TranspÃµe os valores da coluna Header no nÃ³ 2
+###nodeTarget <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nÃ³
+>>>>>>> e294b6c56f5ab09c977c6f9fd64debbbe2d263a9
 MACROA <- length(a)
 MACROB <- length(b)
 
-### Valor MACROdependecy com tamanho do vetor de dependecy, deve ter tamanho igual ao número de pacotes enviados pelo segundo nó.
+### Valor MACROdependecy com tamanho do vetor de dependecy, deve ter tamanho igual ao nÃºmero de pacotes enviados pelo segundo nÃ³.
 if (MACROB < MACROA){
   MACROdependecy <- MACROB
 } else{
@@ -69,16 +98,20 @@ dependecy <-rep(0,MACROdependecy)     ### Popula o vetor dependecy com zeros
 
 
 
-### Laço que captura TODAS as possíveis dependencias entre dois nós, sem filtragem.
-for(i in 1:MACROB){                               ### Números de pacotes do nó B
-  for(j in 1:MACROA){                             ### Números de pacotes do nó B
-    if(a[j] < b[i]){                              ### Vê todos os pacotes do nó A que foram enviados antes do nó B enviar os pacotes
+### LaÃ§o que captura TODAS as possÃ­veis dependencias entre dois nÃ³s, sem filtragem.
+for(i in 1:MACROB){                               ### NÃºmeros de pacotes do nÃ³ B
+  for(j in 1:MACROA){                             ### NÃºmeros de pacotes do nÃ³ B
+    if(a[j] < b[i]){                              ### VÃª todos os pacotes do nÃ³ A que foram enviados antes do nÃ³ B enviar os pacotes
       ### Colocar pacote que originou a dependencia
-      dependecy[i] <- dependecy[i] + 1            ### Calcula o número de possiveis dependecias entre cada pacote enviado pelo nó B
+      dependecy[i] <- dependecy[i] + 1            ### Calcula o nÃºmero de possiveis dependecias entre cada pacote enviado pelo nÃ³ B
       
     }
   }
 }
 
+<<<<<<< HEAD
 dependecy
 
+=======
+dependecy
+>>>>>>> e294b6c56f5ab09c977c6f9fd64debbbe2d263a9
