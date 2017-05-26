@@ -2,15 +2,26 @@ library(readxl)
 library(hashmap)
 packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
 
-nodeTarget  <- 1 ###scan()
+nodeTarget  <- 257 ###scan()
 
 
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos os pacotes com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos os pacotes com Source == nodeTarget
-final <- merge(x = targetNode, y = sourceNode, by = "Header", all = TRUE)
-write.table(final, file = "pacotes.txt",sep = "\t",eol = "\n", na = "-",row.names = FALSE)
-
+mergedTable <- merge(x = targetNode, y = sourceNode, 
+               by = c("Header","Source", "Address","Service","Payload","Target"), all = TRUE)
+##write.table(final, file = "pacotes.txt",sep = "\t",eol = "\n", na = "-",row.names = FALSE)
+refinedData <- subset(final, !(Source != Address & Address != Target)) ##Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos
 UniqueValues <- unique(final[,-1])
+
+
+
+
+
+
+
+
+
+
 
 
 a <- as.vector(t(sourceNode$Header))                ### Transpõe os valores da coluna Header no nó 1
