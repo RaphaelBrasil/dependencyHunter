@@ -21,24 +21,32 @@ UniqueValues <- unique(refinedData[,-1])
 UniqueValues2 <- refinedData ##UniqueValues
 ##UniqueValues2$CurrentNode <- NULL
 UniqueValues2$tag <- 0
-UniqueValues2
 numRow<- NROW(UniqueValues2)
 varTag <- 1
-for(i in 1:(numRow-1)){
-  if(UniqueValues2$tag[i] == 0){
-     UniqueValues2$tag[i] <- paste0("P",varTag)
-    for(y in (i+1):(numRow)){
-      if((UniqueValues2$Source[y]  == UniqueValues2$Source[i])  & 
-         (UniqueValues2$Service[y] == UniqueValues2$Service[i]) & 
-         (UniqueValues2$Payload[y] == UniqueValues2$Payload[i]) & 
-         (UniqueValues2$Target[y]  == UniqueValues2$Target[i])){
-          UniqueValues2$tag[y] <- paste0("P",varTag)
-        
-      }else{
-        print("Já está tagueada")
+for(i in 1:(numRow)){
+  if((UniqueValues2$tag[i] == 0) & (UniqueValues2$Source[i] != nodeTarget)){
+    UniqueValues2$tag[i] <- paste0("I",varTag)
+    varTag <- varTag - 1
+  }
+  if((UniqueValues2$tag[i] == 0) & (UniqueValues2$Source[i] == nodeTarget)){
+    UniqueValues2$tag[i] <- paste0("O",varTag)
+    varTag <- varTag - 1
+  }
+  for(y in (i+1):(numRow)){
+    if((UniqueValues2$Source[y]  == UniqueValues2$Source[i])  & 
+       (UniqueValues2$Service[y] == UniqueValues2$Service[i]) & 
+       (UniqueValues2$Payload[y] == UniqueValues2$Payload[i]) & 
+       (UniqueValues2$Target[y]  == UniqueValues2$Target[i])){
+      if(UniqueValues2$Source[y] != nodeTarget){
+        UniqueValues2$tag[y] <- paste0("I",varTag)
       }
+      if(UniqueValues2$Source[y] == nodeTarget){
+        UniqueValues2$tag[y] <- paste0("O",varTag)
+      }
+      
+    }else{
+      print("Já está tagueada")
     }
-     varTag <- varTag - 1
   }
   varTag <- varTag + 1
 }
