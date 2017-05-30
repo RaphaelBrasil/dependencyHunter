@@ -1,28 +1,24 @@
+#Desenvolvido por Weslley Nojosa e Raphael Brasil
+#IFCE - Campus Marancaú, 2017
 library(readxl)
 
-packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
+packet <- read_excel("/home/raphael/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
 
 nodeTarget  <- 2 ###scan()
 
 
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos os pacotes com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos os pacotes com Source == nodeTarget
-mergedTable <- merge(x = targetNode, y = sourceNode,
+mergedTable <- merge(x = targetNode, y = sourceNode, ### União das duas tabelas aneriores.
                      by = c("Timestamp","Source","CurrentNode","Service","Payload","Target"), all = TRUE)
 
-##write.table(final, file = "pacotes.txt",sep = "\t",eol = "\n", na = "-",row.names = FALSE)
+refinedData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) ### Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos.
+UniqueValues <- unique(refinedData[,-1])											 ### Data Frame com as informações de cada pacote único.
+UniqueValues$tag <- 0																 ### Cria uma nova coluna, onde colocaremos os valores da TAG.
+numRow<- NROW(UniqueValues)															 ### Número de linhas que o DF contém.
+varTag <- 1		
 
-refinedData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) ##Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos
-UniqueValues <- unique(refinedData[,-1])
-
-
-
-
-##UniqueValues <- refinedData ##UniqueValues
-##UniqueValues$CurrentNode <- NULL
-UniqueValues$tag <- 0
-numRow<- NROW(UniqueValues)
-varTag <- 1
+##################### FUNÇÃO QUE INSERE A TAG #####################
 
 for(i in 1:(numRow-1)){
   if(UniqueValues$tag[i] == 0){
@@ -65,15 +61,10 @@ for(i in 1:(numRow)){
   
 }
 
+###################################### FUNÇÃO SEM AÇÃO POR ENQUANTO #####################################################################################
 
-
-
-
-
-
-
-a <- as.vector(t(sourceNode$Header))                ### Transpõe os valores da coluna Header no nó 1
-b <- as.vector(t(targetNode$Header))                ### Transpõe os valores da coluna Header no nó 2
+a <- as.vector(t(refinedData$Timestamp))                ### Transpõe os valores da coluna Timestamp no nó 1
+b <- as.vector(t(refinedData$Timestamp))                ### Transpõe os valores da coluna Timestamp no nó 2
 ###nodeTarget <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nó
 MACROA <- length(a)
 MACROB <- length(b)
