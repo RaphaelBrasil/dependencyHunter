@@ -2,9 +2,9 @@
 #IFCE - Campus Marancaú, 2017
 library(readxl)
 
-packet <- read_excel("/home/raphael/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
+packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
 
-nodeTarget  <- 2 ###scan()
+nodeTarget  <- 256 ###scan()
 
 
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos os pacotes com Target == nodeTarget  
@@ -13,7 +13,8 @@ mergedTable <- merge(x = targetNode, y = sourceNode, ### União das duas tabelas
                      by = c("Timestamp","Source","CurrentNode","Service","Payload","Target"), all = TRUE)
 
 refinedData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) ### Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos.
-UniqueValues <- unique(refinedData[,-1])											 ### Data Frame com as informações de cada pacote único.
+#UniqueValues <- unique(refinedData[,-1])											 ### Data Frame com as informações de cada pacote único.
+UniqueValues <- refinedData[refinedData$Service==20 | refinedData$Service == 10,] 
 UniqueValues$tag <- 0																 ### Cria uma nova coluna, onde colocaremos os valores da TAG.
 numRow<- NROW(UniqueValues)															 ### Número de linhas que o DF contém.
 varTag <- 1		
@@ -32,8 +33,6 @@ for(i in 1:(numRow-1)){
            (UniqueValues$Target[y]  == UniqueValues$Target[i])){
           UniqueValues$tag[y] <- paste0("I",varTag)
           
-        }else{
-          print("Já está tagueada")
         }
       }
     }
