@@ -1,51 +1,79 @@
 library(readxl)
 
-packet <- read_excel("/home/raphael/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
+packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
 
 nodeTarget  <- 2 ###scan()
 
 
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos os pacotes com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos os pacotes com Source == nodeTarget
-mergedTable <- merge(x = targetNode, y = sourceNode, ### União das duas tabelas aneriores.
+mergedTable <- merge(x = targetNode, y = sourceNode,
                      by = c("Timestamp","Source","CurrentNode","Service","Payload","Target"), all = TRUE)
 
-refinedData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) ### Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos.
-UniqueValues <- unique(refinedData[,-1])											 ### Data Frame com as informações de cada pacote único.
-UniqueValues$tag <- 0																 ### Cria uma nova coluna, onde colocaremos os valores da TAG.
-numRow<- NROW(UniqueValues)															 ### Número de linhas que o DF contém.
-varTag <- 1																			 ### Variável auxiliar para contagem do valor da TAG.
+##write.table(final, file = "pacotes.txt",sep = "\t",eol = "\n", na = "-",row.names = FALSE)
 
-#####################FUNÇÃO QUE CALCULA A TAG#####################
+refinedData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) ##Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos
+UniqueValues <- unique(refinedData[,-1])
+
+
+
+
+##UniqueValues <- refinedData ##UniqueValues
+##UniqueValues$CurrentNode <- NULL
+UniqueValues$tag <- 0
+numRow<- NROW(UniqueValues)
+varTag <- 1
+
 for(i in 1:(numRow-1)){
   if(UniqueValues$tag[i] == 0){
-    UniqueValues$tag[i] <- paste0("P",varTag)
+    #print(nodeTarget)
+    if(UniqueValues$Source[i] != nodeTarget){
+      UniqueValues$tag[i] <- paste0("I",varTag)
+      for(y in (i+1):(numRow)){
+        if((UniqueValues$Source[y]  == UniqueValues$Source[i])  & 
+           (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
+           (UniqueValues$Payload[y] == UniqueValues$Payload[i]) & 
+           (UniqueValues$Target[y]  == UniqueValues$Target[i])){
+          UniqueValues$tag[y] <- paste0("I",varTag)
+          
+        }else{
+          print("Já está tagueada")
+        }
+      }
+    }
+    
+    varTag <- varTag - 1
+  }
+  varTag <- varTag + 1
+}
+
+varTag <- 1
+for(i in 1:(numRow)){
+  if(UniqueValues$tag[i] == 0){
+    UniqueValues$tag[i] <- paste0("O",varTag)
     for(y in (i+1):(numRow)){
       if((UniqueValues$Source[y]  == UniqueValues$Source[i])  & 
          (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
          (UniqueValues$Payload[y] == UniqueValues$Payload[i]) & 
          (UniqueValues$Target[y]  == UniqueValues$Target[i])){
-        UniqueValues$tag[y] <- paste0("P",varTag)
+        UniqueValues$tag[y] <- paste0("O",varTag)
         
-      }else{
-        print("Já está tagueada")
       }
     }
-    varTag <- varTag - 1
+    varTag <- varTag + 1
   }
-  varTag <- varTag + 1
+  
 }
-#####################FUNÇÃO QUE CALCULA A TAG#####################
 
 
 
 
 
 
-######################################FUNÇÃO SEM AÇÃO POR ENQUANTO#####################################################################################
 
-a <- as.vector(t(refinedData$Timestamp))                ### Transpõe os valores da coluna Timestamp no nó 1
-b <- as.vector(t(refinedData$Timestamp))                ### Transpõe os valores da coluna Timestamp no nó 2
+
+a <- as.vector(t(sourceNode$Header))                ### Transpõe os valores da coluna Header no nó 1
+b <- as.vector(t(targetNode$Header))                ### Transpõe os valores da coluna Header no nó 2
 ###nodeTarget <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nó
 MACROA <- length(a)
 MACROB <- length(b)
