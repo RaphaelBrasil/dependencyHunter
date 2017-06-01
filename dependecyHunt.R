@@ -14,7 +14,8 @@ mergedTable <- merge(x = targetNode, y = sourceNode, ### União das duas tabelas
 
 refinedData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) ### Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos.
 #UniqueValues <- unique(refinedData[,-1])											 ### Data Frame com as informações de cada pacote único.
-UniqueValues <- refinedData[refinedData$Service==20 | refinedData$Service == 10,] 
+#UniqueValues <- refinedData[refinedData$Service==20 | refinedData$Service == 10,] 
+UniqueValues <- packet[packet$Service==20 | packet$Service == 10,] ## Utilizando todos os nós
 UniqueValues$tag <- 0																 ### Cria uma nova coluna, onde colocaremos os valores da TAG.
 numRow<- NROW(UniqueValues)															 ### Número de linhas que o DF contém.
 varTag <- 1		
@@ -59,6 +60,15 @@ for(i in 1:(numRow)){
   }
   
 }
+
+Teste <- kmeans(packet[1:6], 3)
+Teste
+Teste$size 
+
+plot(packet[1:6], col = packet$Service, pch= 19)
+plot(packet[1:6], col = Teste$cluster, pch= 19)
+
+
 
 ###################################### FUNÇÃO SEM AÇÃO POR ENQUANTO #####################################################################################
 
