@@ -10,24 +10,25 @@
 
 
 library(readxl)
-packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
+packet <- read_excel("C:/dependecyHunter/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
 nodeTarget  <- 256	### Nó alvo da extração das dependências.(Devemos depois criar um laco onde passe por todos os nos da rede)
-targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos os pacotes com Target == nodeTarget  
-sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos os pacotes com Source == nodeTarget
+targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos as linhas com Target == nodeTarget  
+sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos as linhas com Source == nodeTarget
 mergedTable <- merge(x = targetNode, y = sourceNode, ### Uniao das duas tabelas aneriores.
                      by = c("Timestamp","Source","CurrentNode","Service","Payload","Target"), all = TRUE)
 
 refinedData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) ### Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos.
-#UniqueValues <- unique(refinedData[,-1])											 ### Data Frame com as informacoes de cada pacote unico.
+refinedData <- subset(refinedData, (CurrentNode != Target))
+#UniqueValues <- unique(refinedData[,-1])	 ### Data Frame com as informacoes de cada pacote unico.
 #UniqueValues <- refinedData[refinedData$Service==20 | refinedData$Service == 10,] 
-UniqueValues <- packet[packet$Service==20 | packet$Service == 10,] 					 ### Utilizando todos os nos.
-UniqueValues$TAG <- 0																 ### Cria uma nova coluna, onde colocaremos os valores da TAG.
+UniqueValues <- refinedData[refinedData$Service==20, ] 	 ### Utilizando todos os nos.
+UniqueValues$TAG <- 0																     ### Cria uma nova coluna, onde colocaremos os valores da TAG.
 numRow<- NROW(UniqueValues)															 ### Numero de linhas que o DF contem.
-varTAG <- 1																			 ### Variavel auxiliar para a funcao de TAG
+varTAG <- 1																		        	 ### Variavel auxiliar para a funcao de TAG
 
 ####################################################################################################
 ################################## FUNCAO QUE INSERE A TAG #########################################
-for(i in 1:(numRow-1)){																			 ###
+for(i in 1:(numRow-1)){																		                                    	 ###
   if(UniqueValues$TAG[i] == 0){
     if(UniqueValues$Source[i] != nodeTarget){
       UniqueValues$TAG[i] <- paste0("I",varTAG)
@@ -58,9 +59,45 @@ for(i in 1:(numRow)){
     }
     varTAG <- varTAG + 1
   }
-}																								 ###
+}																								                                                 ###
 ####################################################################################################
 ################################## FUNCAO QUE INSERE A TAG #########################################
+
+
+####################################################################################################
+############################## FUNCAO QUE IDENTIFICA AS DEP ########################################
+
+
+
+
+###Como fazer um vetor de dataframes###
+FOO <- list()
+days <- 3
+for (i in 1:days)
+{
+  FOO[[i]] <- data.frame(x=c(i, i+1, i+2), y=c(i, i*i, i*i*i))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
