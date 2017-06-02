@@ -1,65 +1,69 @@
-#Desenvolvido por Weslley Nojosa e Raphael Brasil
-#IFCE - Campus Marancaú, 2017
+
+####################################################################################################
+###                                   |||Dependency Hunter|||                                    ###
+###    Criado com o intuito de extrair as dependecias entre os pacotes em aplicacoes HEMPS.      ###
+###                                                                                              ###
+### Desenvolvido por Raphael Brasil e Weslley Nojosa                                             ###
+### IFCE - Campus Marancana�, 2017                                                               ###
+####################################################################################################
+
+
+
 library(readxl)
-
-packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulação.
-
-nodeTarget  <- 256 ###scan()
-
-
+packet <- read_excel("/home/weslley/Downloads/hempsMPEG.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
+nodeTarget  <- 256	### N� alvo da extra��o das depend�ncias.(Devemos depois criar um laco onde passe por todos os nos da rede)
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos os pacotes com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos os pacotes com Source == nodeTarget
-mergedTable <- merge(x = targetNode, y = sourceNode, ### União das duas tabelas aneriores.
+mergedTable <- merge(x = targetNode, y = sourceNode, ### Uniao das duas tabelas aneriores.
                      by = c("Timestamp","Source","CurrentNode","Service","Payload","Target"), all = TRUE)
 
 refinedData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) ### Mostra somente as linhas com o pacote a ser enviado, ou pacotes recebidos.
-#UniqueValues <- unique(refinedData[,-1])											 ### Data Frame com as informações de cada pacote único.
+#UniqueValues <- unique(refinedData[,-1])											 ### Data Frame com as informacoes de cada pacote unico.
 #UniqueValues <- refinedData[refinedData$Service==20 | refinedData$Service == 10,] 
-UniqueValues <- packet[packet$Service==20 | packet$Service == 10,] ## Utilizando todos os nós
-UniqueValues$tag <- 0																 ### Cria uma nova coluna, onde colocaremos os valores da TAG.
-numRow<- NROW(UniqueValues)															 ### Número de linhas que o DF contém.
-varTag <- 1		
+UniqueValues <- packet[packet$Service==20 | packet$Service == 10,] 					 ### Utilizando todos os nos.
+UniqueValues$TAG <- 0																 ### Cria uma nova coluna, onde colocaremos os valores da TAG.
+numRow<- NROW(UniqueValues)															 ### Numero de linhas que o DF contem.
+varTAG <- 1																			 ### Variavel auxiliar para a funcao de TAG
 
-##################### FUNÇÃO QUE INSERE A TAG #####################
-
-for(i in 1:(numRow-1)){
-  if(UniqueValues$tag[i] == 0){
-    #print(nodeTarget)
+####################################################################################################
+################################## FUNCAO QUE INSERE A TAG #########################################
+for(i in 1:(numRow-1)){																			 ###
+  if(UniqueValues$TAG[i] == 0){
     if(UniqueValues$Source[i] != nodeTarget){
-      UniqueValues$tag[i] <- paste0("I",varTag)
+      UniqueValues$TAG[i] <- paste0("I",varTAG)
       for(y in (i+1):(numRow)){
         if((UniqueValues$Source[y]  == UniqueValues$Source[i])  & 
            (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
            (UniqueValues$Payload[y] == UniqueValues$Payload[i]) & 
            (UniqueValues$Target[y]  == UniqueValues$Target[i])){
-          UniqueValues$tag[y] <- paste0("I",varTag)
-          
+          UniqueValues$TAG[y] <- paste0("I",varTAG)
         }
       }
     }
-    
-    varTag <- varTag - 1
+    varTAG <- varTAG - 1
   }
-  varTag <- varTag + 1
+  varTAG <- varTAG + 1
 }
-
-varTag <- 1
+varTAG <- 1
 for(i in 1:(numRow)){
-  if(UniqueValues$tag[i] == 0){
-    UniqueValues$tag[i] <- paste0("O",varTag)
+  if(UniqueValues$TAG[i] == 0){
+    UniqueValues$TAG[i] <- paste0("O",varTAG)
     for(y in (i+1):(numRow)){
       if((UniqueValues$Source[y]  == UniqueValues$Source[i])  & 
          (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
          (UniqueValues$Payload[y] == UniqueValues$Payload[i]) & 
          (UniqueValues$Target[y]  == UniqueValues$Target[i])){
-        UniqueValues$tag[y] <- paste0("O",varTag)
-        
+		 UniqueValues$TAG[y] <- paste0("O",varTAG)
       }
     }
-    varTag <- varTag + 1
+    varTAG <- varTAG + 1
   }
-  
-}
+}																								 ###
+####################################################################################################
+################################## FUNCAO QUE INSERE A TAG #########################################
+
+
+
 
 Teste <- kmeans(packet[1:6], 3)
 Teste
@@ -70,36 +74,25 @@ plot(packet[1:6], col = Teste$cluster, pch= 19)
 
 
 
-###################################### FUNÇÃO SEM AÇÃO POR ENQUANTO #####################################################################################
-
+###################################### FUNCAO QUE CALCULA A QUANTIDADE DE DEPENDECIAS ###############
 a <- as.vector(t(refinedData$Timestamp))                ### Transpõe os valores da coluna Timestamp no nó 1
 b <- as.vector(t(refinedData$Timestamp))                ### Transpõe os valores da coluna Timestamp no nó 2
 ###nodeTarget <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nó
 MACROA <- length(a)
 MACROB <- length(b)
-
 ### Valor MACROdependecy com tamanho do vetor de dependecy, deve ter tamanho igual ao número de pacotes enviados pelo segundo nó.
 if (MACROB < MACROA){
   MACROdependecy <- MACROB
 } else{
   MACROdependecy <- MACROA
 }
-
-
-dependecy <-rep(0,MACROdependecy)     ### Popula o vetor dependecy com zeros
-
-
-
-
+dependecy <-rep(0,MACROdependecy)     ### Popula o vetor dependecy com zero
 ### Laço que captura TODAS as possíveis dependencias entre dois nós, sem filtragem.
 for(i in 1:MACROB){                               ### Números de pacotes do nó B
   for(j in 1:MACROA){                             ### Números de pacotes do nó B
     if(a[j] < b[i]){                              ### Vê todos os pacotes do nó A que foram enviados antes do nó B enviar os pacotes
       ### Colocar pacote que originou a dependencia
-      dependecy[i] <- dependecy[i] + 1            ### Calcula o número de possiveis dependecias entre cada pacote enviado pelo nó B
-      
+      dependecy[i] <- dependecy[i] + 1            ### Calcula o número de possiveis dependecias entre cada pacote enviado pelo nó B     
     }
   }
 }
-
-dependecy
