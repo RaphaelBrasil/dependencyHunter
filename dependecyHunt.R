@@ -10,7 +10,7 @@
 
 library(readxl)
 packet <- read_excel("/home/weslley/Downloads/hempsDTW.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
-nodeTarget  <- 512	### Nó alvo da extração das dependências.(Devemos depois criar um laco onde passe por todos os nos da rede)
+nodeTarget  <- 2	### Nó alvo da extração das dependências.(Devemos depois criar um laco onde passe por todos os nos da rede)
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos as linhas com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos as linhas com Source == nodeTarget
 mergedTable <- merge(x = targetNode, y = sourceNode, ### Uniao das duas tabelas aneriores.
@@ -27,30 +27,27 @@ varTAG <- 1																		        	 ### Variavel auxiliar para a funcao de TA
 
 ####################################################################################################
 ################################## FUNCAO QUE INSERE A TAG #########################################
-for(i in 1:(numRow-1)){																		                                    	 ###
+for(i in 1:(numRow)){	
   if(UniqueValues$TAG[i] == 0){
     if(UniqueValues$Source[i] != nodeTarget){
-      UniqueValues$TAG[i] <- paste0("I",varTAG)
-      varTAG <- varTAG + 1
+      UniqueValues$TAG[i] <- paste0(varTAG)#paste0("I",varTAG)
     }
     
-      for(y in (i+1):(numRow)){
-        if((UniqueValues$Source[y]  == UniqueValues$Source[i])  & 
-           (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
-           (UniqueValues$Payload[y] == UniqueValues$Payload[i]) & 
-           (UniqueValues$Target[y]  == UniqueValues$Target[i])){
-          UniqueValues$TAG[y] <- paste0("I",varTAG)
-        }
+    for(y in (i+1):(numRow)){
+      if((UniqueValues$Source[y]  == UniqueValues$Source[i])  & 
+         (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
+         (UniqueValues$Payload[y] == UniqueValues$Payload[i]) & 
+         (UniqueValues$Target[y]  == UniqueValues$Target[i])){
+        UniqueValues$TAG[y] <- paste0(varTAG)#"I",varTAG)
       }
-    varTAG <- varTAG - 1
+    } 
   }
-  varTAG <- varTAG + 1
+  varTAG <- varTAG + 1 
 }
 varTAG <- 1
 for(i in 1:(numRow)){
   if(UniqueValues$TAG[i] == 0){
     UniqueValues$TAG[i] <- paste0("O",varTAG)
-    varTAG <- varTAG + 1
     for(y in (i+1):(numRow)){
       if((UniqueValues$Source[y]  == UniqueValues$Source[i])  & 
          (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
@@ -61,7 +58,22 @@ for(i in 1:(numRow)){
     }
     varTAG <- varTAG + 1
   }
-}																								                                                 ###
+}		
+tagList <- list(UniqueValues$TAG)
+tagList
+
+mode_fun <- function(UniqueValues) {
+  
+  mode0 <- names(which.max(table(UniqueValues)))
+  
+  if(is.numeric(tagList)) return(as.numeric(mode0))
+  
+  mode0
+  
+}
+
+aggregate(UniqueValues$TAG,by=tagList,FUN=mode_fun)
+
 ####################################################################################################
 ################################## FUNCAO QUE INSERE A TAG #########################################
 
