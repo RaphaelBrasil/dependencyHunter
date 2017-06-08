@@ -30,7 +30,7 @@ varTAG <- 1																		        	 ### Variavel auxiliar para a funcao de TA
 for(i in 1:(numRow)){	
   if(UniqueValues$TAG[i] == 0){
     if(UniqueValues$Source[i] != nodeTarget){
-      UniqueValues$TAG[i] <- paste0(varTAG)#paste0("I",varTAG)
+      UniqueValues$TAG[i] <- paste0("I",varTAG)
     }
     
     for(y in (i+1):(numRow)){
@@ -38,7 +38,7 @@ for(i in 1:(numRow)){
          (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
          (UniqueValues$Payload[y] == UniqueValues$Payload[i]) & 
          (UniqueValues$Target[y]  == UniqueValues$Target[i])){
-        UniqueValues$TAG[y] <- paste0(varTAG)#"I",varTAG)
+        UniqueValues$TAG[y] <- paste0("I",varTAG)
       }
     } 
   }
@@ -59,20 +59,13 @@ for(i in 1:(numRow)){
     varTAG <- varTAG + 1
   }
 }		
-tagList <- list(UniqueValues$TAG)
-tagList
 
-mode_fun <- function(UniqueValues) {
-  
-  mode0 <- names(which.max(table(UniqueValues)))
-  
-  if(is.numeric(tagList)) return(as.numeric(mode0))
-  
-  mode0
-  
-}
-
-aggregate(UniqueValues$TAG,by=tagList,FUN=mode_fun)
+R <-  unlist(UniqueValues$TAG)
+R <- gsub("[O][1]","", R)
+R1 <- R[R!=""]
+temp <- table(as.array(R1))
+temp
+names(temp)[temp == max(temp)]
 
 ####################################################################################################
 ################################## FUNCAO QUE INSERE A TAG #########################################
