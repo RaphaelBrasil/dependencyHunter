@@ -9,6 +9,7 @@
 
 
 library(readxl)
+library(stringr)
 packet <- read_excel("/home/weslley/Downloads/hempsDTW.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
 nodeTarget  <- 2	### Nó alvo da extração das dependências.(Devemos depois criar um laco onde passe por todos os nos da rede)
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos as linhas com Target == nodeTarget  
@@ -47,26 +48,46 @@ for(i in 1:(numRow)){
 varTAG <- 1
 for(i in 1:(numRow)){
   if(UniqueValues$TAG[i] == 0){
-    UniqueValues$TAG[i] <- paste0("O",varTAG)
+    UniqueValues$TAG[i] <- varTAG
     for(y in (i+1):(numRow)){
       if((UniqueValues$Source[y]  == UniqueValues$Source[i])  & 
          (UniqueValues$Service[y] == UniqueValues$Service[i]) & 
          (UniqueValues$Payload[y] == UniqueValues$Payload[i]) & 
          (UniqueValues$Target[y]  == UniqueValues$Target[i])){
-        UniqueValues$TAG[y] <- paste0("O",varTAG)
+        UniqueValues$TAG[y] <- varTAG
       }
     }
     varTAG <- varTAG + 1
   }
 }		
 
-R <-  unlist(UniqueValues$TAG)
-R <- gsub("[O][1]","", R)
-R1 <- R[R!=""]
-temp <- table(as.array(R1))
-temp
-names(temp)[temp == max(temp)]
+# R <-  unlist(UniqueValues$TAG)
+# R <- gsub("[1]","", R)
+# R1 <- R[R!=""]
+# temp <- table(as.array(R1))
+# temp
+# names(temp)[temp == max(temp)]
 
+G <- unlist(UniqueValues$TAG)
+g <- length(G)
+aux <- 1#head(G[[1]])
+matrixG <- matrix(G,nrow = g, ncol = g)
+for(i in 1:(g)){
+  if(str_detect(G[[i]], "^[0-9]+$")==TRUE){
+    for(j in aux:i){
+    matrixG[j,] <- G[j]
+    j <- j + 1
+    }
+    aux <- i+1
+  }
+}
+
+G[[3]] <- 100
+G[[3]]
+padrao <- "^[0-9]+$"
+#G[3]==grep("^[0-9]+$",padrao)
+
+#matrixG
 ####################################################################################################
 ################################## FUNCAO QUE INSERE A TAG #########################################
 
