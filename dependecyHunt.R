@@ -3,15 +3,15 @@
 ###    Criado com o intuito de extrair as dependecias entre os pacotes em aplicacoes HEMPS.      ###
 ###                                                                                              ###
 ### Desenvolvido por Raphael Brasil e Weslley Nojosa                                             ###
-### IFCE - Campus Marancanaú, 2017                                                               ###
+### IFCE - Campus Marancana�, 2017                                                               ###
 ####################################################################################################
 
 
 
 library(readxl)
 library(stringr)
-packet <- read_excel("/home/weslley/Downloads/hempsDTW.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
-nodeTarget  <- 2	### Nó alvo da extração das dependências.(Devemos depois criar um laco onde passe por todos os nos da rede)
+packet <- read_excel("C:/Users/Weslley/Downloads/hempsDTW.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
+nodeTarget  <- 2	### N� alvo da extra��o das depend�ncias.(Devemos depois criar um laco onde passe por todos os nos da rede)
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos as linhas com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos as linhas com Source == nodeTarget
 mergedTable <- merge(x = targetNode, y = sourceNode, ### Uniao das duas tabelas aneriores.
@@ -68,96 +68,30 @@ for(i in 1:(numRow)){
 # temp
 # names(temp)[temp == max(temp)]
 
+
+
 G <- unlist(UniqueValues$TAG)
 g <- length(G)
-aux <- 1#head(G[[1]])
+G[[17]] <- 2
+G[[20]]<- 3
+G[[6]]<- 4
+G
+aux <- 1 #head(G[[1]])
 matrixG <- matrix(G,nrow = g, ncol = g)
 for(i in 1:(g)){
   if(str_detect(G[[i]], "^[0-9]+$")==TRUE){
     for(j in aux:i){
-    matrixG[j,] <- G[j]
-    j <- j + 1
+      rowMatrix <- strtoi(G[[i]], base = 0L) #Transforma a string em numeric
+      matrixG[rowMatrix,j] <- G[[aux]]
+      aux <- aux + 1
     }
-    aux <- i+1
+    j <- i + 1
   }
 }
+
+
 
 G[[3]] <- 100
 G[[3]]
 padrao <- "^[0-9]+$"
 #G[3]==grep("^[0-9]+$",padrao)
-
-#matrixG
-####################################################################################################
-################################## FUNCAO QUE INSERE A TAG #########################################
-
-
-####################################################################################################
-############################## FUNCAO QUE IDENTIFICA AS DEP ########################################
-
-
-
-
-###Como fazer um vetor de dataframes###
-FOO <- list()
-days <- 3
-for (i in 1:days)
-{
-  FOO[[i]] <- data.frame(x=c(i, i+1, i+2), y=c(i, i*i, i*i*i))
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Teste <- kmeans(UniqueValues[1:6], 2)
-Teste
-Teste$size 
-
-plot(UniqueValues[2:5], col = UniqueValues$Service, pch= 19)
-plot(packet[1:6], col = Teste$cluster, pch= 19)
-
-
-
-###################################### FUNCAO QUE CALCULA A QUANTIDADE DE DEPENDECIAS ###############
-a <- as.vector(t(refinedData$Timestamp))                ### TranspÃµe os valores da coluna Timestamp no nÃ³ 1
-b <- as.vector(t(refinedData$Timestamp))                ### TranspÃµe os valores da coluna Timestamp no nÃ³ 2
-###nodeTarget <- packet[packet$Target == 0, ]    ### Linhas com target igual ao segundo nÃ³
-MACROA <- length(a)
-MACROB <- length(b)
-### Valor MACROdependecy com tamanho do vetor de dependecy, deve ter tamanho igual ao nÃºmero de pacotes enviados pelo segundo nÃ³.
-if (MACROB < MACROA){
-  MACROdependecy <- MACROB
-} else{
-  MACROdependecy <- MACROA
-}
-dependecy <-rep(0,MACROdependecy)     ### Popula o vetor dependecy com zero
-### LaÃ§o que captura TODAS as possÃ�veis dependencias entre dois nÃ³s, sem filtragem.
-for(i in 1:MACROB){                               ### NÃºmeros de pacotes do nÃ³ B
-  for(j in 1:MACROA){                             ### NÃºmeros de pacotes do nÃ³ B
-    if(a[j] < b[i]){                              ### VÃª todos os pacotes do nÃ³ A que foram enviados antes do nÃ³ B enviar os pacotes
-      ### Colocar pacote que originou a dependencia
-      dependecy[i] <- dependecy[i] + 1            ### Calcula o nÃºmero de possiveis dependecias entre cada pacote enviado pelo nÃ³ B     
-    }
-  }
-}
