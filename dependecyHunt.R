@@ -72,28 +72,42 @@ g <- length(G)
 G[[17]] <- 2
 G[[20]]<- 3
 G[[6]]<- 4
-G
+G[[10]]<- 5
 aux <- 1 #head(G[[1]])
 l <- list()
 for(i in 1:(g)){
   if(str_detect(G[[i]], "^[0-9]+$")==TRUE){
-    print(i)
-    for(j in 1:3){
-      rowOut <- strtoi(G[[i]], base = 0L) #Transforma a string em numeric
-      #l[[rowOut]] <- G[[j]]
-      l[[rowOut]] <-c(l[[rowOut]],G[[j]])
-      
-      print("jota:")
-      print(j)
-      #aux <- aux + 1
+    for(j in aux:i){
+      rowOut <- strtoi(G[[i]], base = 0L)   #Transforma a string em numeric
+      l[[rowOut]] <- G[[j]]
     }
-    aux <- i + 1
+    aux <- i 
   }
 }
-
+aux2 <- 1
+for(i in 1:(g)){
+  if(str_detect(G[[i]], "^[0-9]+$")==TRUE){
+    rowOut <- strtoi(G[[i]], base = 0L)
+    while(aux2!=i+1){
+      if(is.null(l[[rowOut]])==FALSE){
+        l[[rowOut]] <-c(l[[rowOut]],G[[aux2]])
+      }
+      aux2 <- aux2 +1
+    }
+  }
+}
 l
 
+G
 
+
+#aux <- aux + 1
+l
+
+if (is.null(l[[2]])==FALSE)
+  l[[2]] <- c(l[[2]],G[[6]])
+
+l
 vList <- list()
 vList[[1]] <- 1
 vList[[2]] <- 2
@@ -106,9 +120,9 @@ vList
 vList[[4]] <- c(vList[[4]],6)
 empty(vList[[4]])
 vList
-
+length(vList[[3]])
 #str_detect(G[[2]], "^[0-9]+$")
-
+append(vList[[3]],5, after = length(vList[[3]]))
 G[[3]]
 padrao <- "^[0-9]+$"
 #G[3]==grep("^[0-9]+$",padrao)
