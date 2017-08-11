@@ -3,15 +3,16 @@
 ###    Criado com o intuito de extrair as dependecias entre os pacotes em aplicacoes HEMPS.      ###
 ###                                                                                              ###
 ### Desenvolvido por Raphael Brasil e Weslley Nojosa                                             ###
-### IFCE - Campus Marancanaú, 2017                                                               ###
+### IFCE - Campus Marancana?, 2017                                                               ###
 ####################################################################################################
 
 
 
 library(readxl)
 library(stringr)
-packet <- read_excel("/home/weslley/Downloads/hempsDTW.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
-nodeTarget  <- 2	### Nó alvo da extração das dependências.(Devemos depois criar um laco onde passe por todos os nos da rede)
+library(arules)
+packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hempsSYNTHETIC2_1.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
+nodeTarget  <- 512	### N? alvo da extra??o das depend?ncias.(Devemos depois criar um laco onde passe por todos os nos da rede)
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos as linhas com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos as linhas com Source == nodeTarget
 mergedTable <- merge(x = targetNode, y = sourceNode, ### Uniao das duas tabelas aneriores.
@@ -68,15 +69,15 @@ for(i in 1:(numRow)){
 # temp
 # names(temp)[temp == max(temp)]
 G <- unlist(UniqueValues$TAG)     #Cria uma lista com a coluna das TAGs
-g <- length(G)                    #variável para receber o comprimento da lista
-G[[17]] <- 2                      #Alterações apenas para teste, a fim de verificar
-G[[20]]<- 3                       #se as entradas iam pras saídas correspondentes
+g <- length(G)                    #vari?vel para receber o comprimento da lista
+G[[17]] <- 2                      #Altera??es apenas para teste, a fim de verificar
+G[[20]]<- 3                       #se as entradas iam pras sa?das correspondentes
 G[[6]]<- 4
 G[[10]]<- 5
 aux <- 1 #head(G[[1]])
 l <- list()
-for(i in 1:(g)){                              #Laço que percorre a lista verificando a quantidade de saídas       
-  if(str_detect(G[[i]], "^[0-9]+$")==TRUE){   #e criando um espaço para cada saída correspondente. ex: out = 1, l[[1]]
+for(i in 1:(g)){                              #La?o que percorre a lista verificando a quantidade de sa?das       
+  if(str_detect(G[[i]], "^[0-9]+$")==TRUE){   #e criando um espa?o para cada sa?da correspondente. ex: out = 1, l[[1]]
     for(j in aux:i){
       rowOut <- strtoi(G[[i]], base = 0L)   #Transforma a string em numeric
       l[[rowOut]] <- G[[j]]
@@ -85,7 +86,7 @@ for(i in 1:(g)){                              #Laço que percorre a lista verific
   }                     
 }                        
 aux2 <- 1
-for(i in 1:(g)){           #Laço auxiliar que cria listas na lista original, inserindo cada entrada na sua chave/saída 
+for(i in 1:(g)){           #La?o auxiliar que cria listas na lista original, inserindo cada entrada na sua chave/sa?da 
   if(str_detect(G[[i]], "^[0-9]+$")==TRUE){
     rowOut <- strtoi(G[[i]], base = 0L)
     while(aux2!=i+1){
@@ -97,3 +98,8 @@ for(i in 1:(g)){           #Laço auxiliar que cria listas na lista original, ins
   }
 }
 l
+
+rules <- apriori(l, parameter= list(supp=0.2, conf=0.5))
+inspect(rules)
+summary(rules)
+
