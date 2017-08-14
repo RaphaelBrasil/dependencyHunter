@@ -70,10 +70,6 @@ for(i in 1:(numRow)){
 # names(temp)[temp == max(temp)]
 G <- unlist(UniqueValues$TAG)     #Cria uma lista com a coluna das TAGs
 g <- length(G)                    #vari?vel para receber o comprimento da lista
-G[[17]] <- 2                      #Altera??es apenas para teste, a fim de verificar
-G[[20]]<- 3                       #se as entradas iam pras sa?das correspondentes
-G[[6]]<- 4
-G[[10]]<- 5
 aux <- 1 #head(G[[1]])
 l <- list()
 for(i in 1:(g)){                              #La?o que percorre a lista verificando a quantidade de sa?das       
@@ -98,8 +94,13 @@ for(i in 1:(g)){           #La?o auxiliar que cria listas na lista original, ins
   }
 }
 l
+# l1 <- l
+# c(l,l1)
+# l3 <- c(l,l1)
 
-rules <- apriori(l, parameter= list(supp=0.2, conf=0.5))
+#list(lhs=c("I1","I2","I5")
+rules <- apriori(l, parameter= list(supp=0.1, conf=0.8, target="rules", minlen=3, maxlen=8), appearance = list(lhs=c("I1","I2","I5"), default="rhs"))
 inspect(rules)
 summary(rules)
+inspect(head(rules, by = "lift"))
 
