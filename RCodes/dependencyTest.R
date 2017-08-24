@@ -2,8 +2,8 @@ library(readxl)
 library(stringr)
 library(arules)
 library(devtools)
-library(arulesViz)
-packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hemps6x6.xlsx") 
+#library(arulesViz)
+packet <- read_excel("/home/weslley/dependencyHunter/APPs/hempsApptest.xlsx") 
 NodeMessages <- packet[packet$Service==20, ] 
 tNode <- unique(NodeMessages$Target)
 finalT <- data.frame()
@@ -19,6 +19,43 @@ for (nodeTarget in tNode){
   refineData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) 
   refineData <- subset(refineData, (CurrentNode != Target))
   numRow<- NROW(refineData)
+  
+######### Loop para nodes apenas envia msg 
+  if((nodeTarget %in% refineData$Source) == TRUE & (nodeTarget %in% refineData$Target) == FALSE){
+    for(i in 1:(numRow)){
+      if(refineData$TAG[i] == 0 & refineData$Target[i] != nodeTarget & refineData$Source[i] == nodeTarget){
+        refineData$TAG[i] <- paste0("I",inTAG)
+        for(y in (i+1):(numRow)){
+          if((refineData$Source[y]  == refineData$Source[i])  & 
+             (refineData$Service[y] == refineData$Service[i]) & 
+             (refineData$Payload[y] == refineData$Payload[i]) & 
+             (refineData$Target[y]  == refineData$Target[i])){
+            refineData$TAG[y] <- paste0("I",inTAG)
+          }
+        }
+        inTAG <- inTAG + 1
+      }
+    }
+    x <- refineData$TAG <- 0
+  }
+######## Loop para nodes apenas recebe msg
+  if((nodeTarget %in% refineData$Target) == TRUE & (nodeTarget %in% refineData$Source) == FALSE ){
+    for(i in 1:(numRow)){
+      if(refineData$TAG[i] == 0 & refineData$Target[i] == nodeTarget){
+        refineData$TAG[i] <- outTAG
+        for(y in (2):(numRow)){
+          if((refineData$Source[y]  == refineData$Source[i])  & 
+             (refineData$Service[y] == refineData$Service[i]) & 
+             (refineData$Payload[y] == refineData$Payload[i]) & 
+             (refineData$Target[y]  == refineData$Target[i])){
+            refineData$TAG[y] <- outTAG
+          }
+        }
+        outTAG <- outTAG + 1
+      }
+    }
+    x <- refineData$TAG <- 0
+  }
 ###### Loop para nodes que enviam e recebem msgs
   if((nodeTarget %in% refineData$Source) == TRUE & (nodeTarget %in% refineData$Target) == TRUE){
     for(i in 1:(numRow)){	
@@ -52,42 +89,11 @@ for (nodeTarget in tNode){
         }
         outTAG <- outTAG + 1
       }
-    }	
-  }
-######### Loop para nodes apenas envia msg 
-  if((nodeTarget %in% refineData$Source) == TRUE & (nodeTarget %in% refineData$Target) == FALSE){
-    for(i in 1:(numRow)){
-      if(refineData$TAG[i] == 0 & refineData$Target[i] != nodeTarget & refineData$Source[i] == nodeTarget){
-        refineData$TAG[i] <- paste0("I",inTAG)
-        for(y in (i+1):(numRow)){
-          if((refineData$Source[y]  == refineData$Source[i])  & 
-             (refineData$Service[y] == refineData$Service[i]) & 
-             (refineData$Payload[y] == refineData$Payload[i]) & 
-             (refineData$Target[y]  == refineData$Target[i])){
-            refineData$TAG[y] <- paste0("I",inTAG)
-          }
-        }
-        inTAG <- inTAG + 1
-      }
     }
   }
-######## Loop para nodes apenas recebe msg
-  if((nodeTarget %in% refineData$Target) == TRUE & (nodeTarget %in% refineData$Source) == FALSE ){
-    for(i in 1:(numRow)){
-      if(refineData$TAG[i] == 0 & refineData$Target[i] == nodeTarget){
-        refineData$TAG[i] <- outTAG
-        for(y in (2):(numRow)){
-          if((refineData$Source[y]  == refineData$Source[i])  & 
-             (refineData$Service[y] == refineData$Service[i]) & 
-             (refineData$Payload[y] == refineData$Payload[i]) & 
-             (refineData$Target[y]  == refineData$Target[i])){
-            refineData$TAG[y] <- outTAG
-          }
-        }
-        outTAG <- outTAG + 1
-      }
-    }
-  }
+
+
+  
   x <- refineData
   finalT <- rbind(finalT,x)
 }
@@ -98,7 +104,7 @@ g <- length(G)
 aux <- 1 #head(G[[1]])
 l <- list()
 for(i in 1:(g)){                              #La?o que percorre a lista verificando a quantidade de sa?das       
-  if(str_detect(G[[i]], "^[0-9]+$")==TRUE){   #e criando um espa?o para cada sa?da correspondente. ex: out = 1, l[[1]]
+  if(str_detect(G[[i]], "^[1-9]+$")==TRUE){   #e criando um espa?o para cada sa?da correspondente. ex: out = 1, l[[1]]
     for(j in aux:i){
       rowOut <- strtoi(G[[i]], base = 0L)   #Transforma a string em numeric
       l[[rowOut]] <- G[[j]]
@@ -108,7 +114,7 @@ for(i in 1:(g)){                              #La?o que percorre a lista verific
 }                        
 aux2 <- 1
 for(i in 1:(g)){           #La?o auxiliar que cria listas na lista original, inserindo cada entrada na sua chave/sa?da 
-  if(str_detect(G[[i]], "^[0-9]+$")==TRUE){
+  if(str_detect(G[[i]], "^[1-9]+$")==TRUE){
     rowOut <- strtoi(G[[i]], base = 0L)
     while(aux2!=i+1){
       if(is.null(l[[rowOut]])==FALSE){
@@ -118,7 +124,7 @@ for(i in 1:(g)){           #La?o auxiliar que cria listas na lista original, ins
     }
   }
 }
-
+l
 # Identifica quais são os antecedentes para as regras (usado no lhs) 
 L <- length(l)
 input = c()
@@ -139,6 +145,9 @@ for (i in 1:L){
   for (j in 2:X){
     if (is.null(newList[[rowNum]]) == FALSE){
       newList[[rowNum]] <-c(newList[[rowNum]],l[[i]][j])
+      if(str_detect(l[[i]][j], "^[0]+$") == TRUE){
+        newList[[rowNum]] <- NA
+      }
       if (str_detect(l[[i]][j], "^[0-9]*+$") == TRUE){
         rowNum <- rowNum + 1
         newList[[rowNum]] <- NA
@@ -146,13 +155,13 @@ for (i in 1:L){
     }
   }
 }
-
+newList
 #SUPPORT => O support de um itemset X é a proporção das transações em que o X aparece. Significa a popularidade de um itemset
 
 #CONFIDENCE => Representa a probabiliade de um item Y estar junto com um item X
 
 #LIFT => Calcula a relação entre a confiança da regra e o suporte de um conjunto de itens na regra consequente
-rules <- apriori(newList, parameter= list(supp=0.001, conf=0.4, target="rules", minlen=2),
+rules <- apriori(newList, parameter= list(supp=0.001, conf=0.1, target="rules", minlen=2),
                  appearance = list(lhs=input, default="rhs"))
 # is.redundant(rules,measure = "confidence")
 #inspect(head(rules[is.redundant(rules)], by = "lift"))
