@@ -11,13 +11,9 @@
 library(readxl)
 library(stringr)
 library(arules)
-<<<<<<< HEAD
 library(devtools)
 library(arulesViz)
-packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hempsSYNTHETIC2.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
-=======
-packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hempsSYNTHETIC2_1.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
->>>>>>> 841b95c93dd44d7e0bc91c50752e631007d52777
+packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hempsApptest.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
 nodeTarget  <- 512	### N? alvo da extra??o das depend?ncias.(Devemos depois criar um laco onde passe por todos os nos da rede)
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos as linhas com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos as linhas com Source == nodeTarget
@@ -105,7 +101,6 @@ l
 # l3 <- c(l,l1)
 
 #list(lhs=c("I1","I2","I5")
-<<<<<<< HEAD
 rules <- apriori(l, parameter= list(supp=0.1, conf=0.8, target="rules", minlen=3, maxlen=8))
 inspect(rules)
 summary(rules)
@@ -117,10 +112,9 @@ plot(rules, method="paracoord", control=list(reorder=TRUE))
 
 ##################################################################################################################
 
-=======
 rules <- apriori(l, parameter= list(supp=0.1, conf=0.8, target="rules", minlen=3, maxlen=8), appearance = list(lhs=c("I1","I2","I5"), default="rhs"))
 inspect(rules)
 summary(rules)
 inspect(head(rules, by = "lift"))
->>>>>>> 841b95c93dd44d7e0bc91c50752e631007d52777
+
 

@@ -4,13 +4,8 @@ library(arules)
 library(devtools)
 library(arulesViz)
 
-packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hempsSYNTHETIC2.xlsx") 
+packet <- read_excel("/home/weslley/dependencyHunter/APPs/hempsSYNTHETIC2_1.xlsx") 
 NodeMessages <- packet[packet$Service==20, ] 
-# for (i in NodeMessages$Target){
-#   sourceNode2 <- NodeMessages[NodeMessages$Source == i, ]
-#   targetNode2 <- NodeMessages[NodeMessages$Target == i, ]
-# }
-
 NodeMessages$TAG <- 0	
 
 refineData <- subset(NodeMessages, !(Source != CurrentNode & CurrentNode != Target)) 
@@ -19,7 +14,7 @@ refineData <- subset(refineData, (CurrentNode != Target))
 numRow<- NROW(refineData)
 varTAG <- 1	
 
-for(j in refineData$Target){
+for(j in refineData$Target){                #loop que identifica as linhas com os nós de entrada de toda a rede
   for(i in 1:(numRow)){	
     if(refineData$TAG[i] == 0){
       if(refineData$Source[i] != j){
@@ -39,7 +34,7 @@ for(j in refineData$Target){
   }
 }
 
-for(j in refineData$Target){
+for(j in refineData$Target){        #Correção do loop acima, tornando como 0 as linhas de saída 
   for(i in 1:(numRow)){
     if(refineData$Source[i] == j){
       refineData$TAG[i] <- 0
@@ -47,7 +42,7 @@ for(j in refineData$Target){
   }	
 }
 
-outTag <- 1
+outTag <- 1                  #Insere uma etiqueta em cada nó que está recebendo as mensagens, e que em seguida envia
 
 for(i in 1:(numRow)){
   if(refineData$TAG[i] == 0){
@@ -78,7 +73,7 @@ for(i in 1:(g)){                              #La?o que percorre a lista verific
   }                     
 }                        
 aux2 <- 1
-for(i in 1:(g)){           #Laço auxiliar que cria listas na lista original, inserindo cada entrada na sua chave/sa?da 
+for(i in 1:(g)){           #Loop auxiliar que cria listas na lista original, inserindo cada entrada na sua chave/saida 
   if(str_detect(G[[i]], "^[0-9]*+$")==TRUE){
     rowOut <- strtoi(G[[i]], base = 0L)
     while(aux2!=i+1){
@@ -90,7 +85,7 @@ for(i in 1:(g)){           #Laço auxiliar que cria listas na lista original, in
   }
 }
 
-# Laço que identifica quais são os antecedentes para as regras 
+# Identifica quais são os antecedentes para as regras (usado no lhs) 
 L <- length(l)
 input = c()
 for (i in 1:L){
@@ -102,32 +97,36 @@ for (i in 1:L){
   }
 }
 input <- unique(input[-1])
-newList <- list()
-rowNum <- 1
-newList[[rowNum]] <- 0
-for (i in 1:L){
+newList <- list()              #Cria-se uma nova lista que irá organizar os conjuntos in-out em espaços diferentes da lista base
+rowNum <- 1                    #É inicializado com NA para ser possível adicionar os dados restantes com o for
+newList[[rowNum]] <- NA
+for (i in 1:L){          
   X <- lengths(l[i])
   for (j in 2:X){
     if (is.null(newList[[rowNum]]) == FALSE){
       newList[[rowNum]] <-c(newList[[rowNum]],l[[i]][j])
       if (str_detect(l[[i]][j], "^[0-9]*+$") == TRUE){
         rowNum <- rowNum + 1
-        newList[[rowNum]] <- 0
+        newList[[rowNum]] <- NA
       }
     }
   }
 }
 
-newList
 
-rules <- apriori(newList, parameter= list(supp=0.01, conf=0.5, target="rules", minlen=2),
+#SUPPORT => O support de um itemset X é a proporção das transações em que o X aparece. Significa a popularidade de um itemset
+
+#CONFIDENCE => Representa a probabiliade de um item Y estar junto com um item X
+
+#LIFT => Calcula a relação entre a confiança da regra e o suporte de um conjunto de itens na regra consequente
+rules <- apriori(newList, parameter= list(supp=0.001, conf=0.8, target="rules", minlen=2),
                  appearance = list(lhs=input, default="rhs"))
 # is.redundant(rules,measure = "confidence")
 inspect(head(rules[is.redundant(rules)], by = "lift"))
 #inspect(rules[!is.redundant(rules)])
 inspect(rules)
 summary(rules)
-inspect(head(rules, by = "lift"))
+inspect(head(rules, by= "lift"))
 plot(rules)
 plot(rules, method="graph", control=list(type="items"))
 plotly_arules(rules[is.redundant(rules)], method = "scatterplot", measure = c("support","confidence"), shading = "lift", max = 1000)
