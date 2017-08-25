@@ -2,8 +2,8 @@ library(readxl)
 library(stringr)
 library(arules)
 library(devtools)
-#library(arulesViz)
-packet <- read_excel("/home/weslley/dependencyHunter/APPs/hempsApptest.xlsx") 
+library(arulesViz)
+packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hemps7x7App.xlsx") 
 NodeMessages <- packet[packet$Service==20, ] 
 tNode <- unique(NodeMessages$Target)
 finalT <- data.frame()
@@ -20,15 +20,15 @@ for (nodeTarget in tNode){
   refineData <- subset(refineData, (CurrentNode != Target))
   numRow<- NROW(refineData)
   
-######### Loop para nodes apenas envia msg 
+######### Loop para nodes apenas envia msg
   if((nodeTarget %in% refineData$Source) == TRUE & (nodeTarget %in% refineData$Target) == FALSE){
     for(i in 1:(numRow)){
-      if(refineData$TAG[i] == 0 & refineData$Target[i] != nodeTarget & refineData$Source[i] == nodeTarget){
+      if(refineData$TAG[i] == 0){
         refineData$TAG[i] <- paste0("I",inTAG)
-        for(y in (i+1):(numRow)){
-          if((refineData$Source[y]  == refineData$Source[i])  & 
-             (refineData$Service[y] == refineData$Service[i]) & 
-             (refineData$Payload[y] == refineData$Payload[i]) & 
+        for(y in (2):(numRow)){
+          if((refineData$Source[y]  == refineData$Source[i])  &
+             (refineData$Service[y] == refineData$Service[i]) &
+             (refineData$Payload[y] == refineData$Payload[i]) &
              (refineData$Target[y]  == refineData$Target[i])){
             refineData$TAG[y] <- paste0("I",inTAG)
           }
@@ -41,48 +41,50 @@ for (nodeTarget in tNode){
 ######## Loop para nodes apenas recebe msg
   if((nodeTarget %in% refineData$Target) == TRUE & (nodeTarget %in% refineData$Source) == FALSE ){
     for(i in 1:(numRow)){
-      if(refineData$TAG[i] == 0 & refineData$Target[i] == nodeTarget){
+      if(refineData$TAG[i] == 0){
         refineData$TAG[i] <- outTAG
-        for(y in (2):(numRow)){
-          if((refineData$Source[y]  == refineData$Source[i])  & 
-             (refineData$Service[y] == refineData$Service[i]) & 
-             (refineData$Payload[y] == refineData$Payload[i]) & 
-             (refineData$Target[y]  == refineData$Target[i])){
-            refineData$TAG[y] <- outTAG
+        if(numRow>1){
+          for(y in (2):(numRow)){
+            if((refineData$Source[y]  == refineData$Source[i])  &
+               (refineData$Service[y] == refineData$Service[i]) &
+               (refineData$Payload[y] == refineData$Payload[i]) &
+               (refineData$Target[y]  == refineData$Target[i])){
+              refineData$TAG[y] <- outTAG
+            }
           }
+          outTAG <- outTAG + 1
         }
-        outTAG <- outTAG + 1
       }
     }
     x <- refineData$TAG <- 0
   }
 ###### Loop para nodes que enviam e recebem msgs
   if((nodeTarget %in% refineData$Source) == TRUE & (nodeTarget %in% refineData$Target) == TRUE){
-    for(i in 1:(numRow)){	
+    for(i in 1:(numRow)){
       if(refineData$TAG[i] == 0){
         if(refineData$Source[i] != nodeTarget){
           refineData$TAG[i] <- paste0("I",inTAG)
           for(y in (2):(numRow)){
-            if((refineData$Source[y]  == refineData$Source[i])  & 
-               (refineData$Service[y] == refineData$Service[i]) & 
-               (refineData$Payload[y] == refineData$Payload[i]) & 
+            if((refineData$Source[y]  == refineData$Source[i])  &
+               (refineData$Service[y] == refineData$Service[i]) &
+               (refineData$Payload[y] == refineData$Payload[i]) &
                (refineData$Target[y]  == refineData$Target[i])){
               refineData$TAG[y] <- paste0("I",inTAG)
             }
           }
         }
-        
+
       }
-      inTAG <- inTAG + 1 
+      inTAG <- inTAG + 1
     }
-    
+
     for(i in 1:(numRow)){
       if(refineData$TAG[i] == 0){
         refineData$TAG[i] <- outTAG
         for(y in (2):(numRow)){
-          if((refineData$Source[y]  == refineData$Source[i])  & 
-             (refineData$Service[y] == refineData$Service[i]) & 
-             (refineData$Payload[y] == refineData$Payload[i]) & 
+          if((refineData$Source[y]  == refineData$Source[i])  &
+             (refineData$Service[y] == refineData$Service[i]) &
+             (refineData$Payload[y] == refineData$Payload[i]) &
              (refineData$Target[y]  == refineData$Target[i])){
             refineData$TAG[y] <- outTAG
           }
@@ -95,6 +97,7 @@ for (nodeTarget in tNode){
 
   
   x <- refineData
+  print(x)
   finalT <- rbind(finalT,x)
 }
 
@@ -130,27 +133,32 @@ L <- length(l)
 input = c()
 for (i in 1:L){
   X <- lengths(l[i])
-  for (j in 1:X){
-    if (str_detect(l[[i]][j], "([I])+[0-9]*") == TRUE){
-      input <-c(input,l[[i]][j])
+  if(X>=1){
+    for (j in 1:X){
+      if (str_detect(l[[i]][j], "([I])+[0-9]*") == TRUE){
+        input <-c(input,l[[i]][j])
+      }
     }
   }
 }
+
 input <- unique(input[-1])
 newList <- list()              #Cria-se uma nova lista que irá organizar os conjuntos in-out em espaços diferentes da lista base
 rowNum <- 1                    #É inicializado com NA para ser possível adicionar os dados restantes com o for
 newList[[rowNum]] <- NA
 for (i in 1:L){          
   X <- lengths(l[i])
-  for (j in 2:X){
-    if (is.null(newList[[rowNum]]) == FALSE){
-      newList[[rowNum]] <-c(newList[[rowNum]],l[[i]][j])
-      if(str_detect(l[[i]][j], "^[0]+$") == TRUE){
-        newList[[rowNum]] <- NA
-      }
-      if (str_detect(l[[i]][j], "^[0-9]*+$") == TRUE){
-        rowNum <- rowNum + 1
-        newList[[rowNum]] <- NA
+  if(X>=1){
+    for (j in 2:X){
+      if (is.null(newList[[rowNum]]) == FALSE){
+        newList[[rowNum]] <-c(newList[[rowNum]],l[[i]][j])
+        if(str_detect(l[[i]][j], "^[0]+$") == TRUE){
+          newList[[rowNum]] <- NA
+        }
+        if (str_detect(l[[i]][j], "^[0-9]*+$") == TRUE){
+          rowNum <- rowNum + 1
+          newList[[rowNum]] <- NA
+        }
       }
     }
   }
