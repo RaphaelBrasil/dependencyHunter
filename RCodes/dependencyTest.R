@@ -3,7 +3,7 @@ library(stringr)
 library(arules)
 library(devtools)
 library(arulesViz)
-packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hemps7x7App.xlsx") 
+packet <- read_excel("/home/weslley/Documentos/teste3.xlsx") 
 NodeMessages <- packet[packet$Service==20, ] 
 tNode <- unique(NodeMessages$Target)
 finalT <- data.frame()
@@ -25,12 +25,14 @@ for (nodeTarget in tNode){
     for(i in 1:(numRow)){
       if(refineData$TAG[i] == 0){
         refineData$TAG[i] <- paste0("I",inTAG)
-        for(y in (2):(numRow)){
-          if((refineData$Source[y]  == refineData$Source[i])  &
-             (refineData$Service[y] == refineData$Service[i]) &
-             (refineData$Payload[y] == refineData$Payload[i]) &
-             (refineData$Target[y]  == refineData$Target[i])){
-            refineData$TAG[y] <- paste0("I",inTAG)
+        if(numRow>1){
+          for(y in (2):(numRow)){
+            if((refineData$Source[y]  == refineData$Source[i])  &
+               (refineData$Service[y] == refineData$Service[i]) &
+               (refineData$Payload[y] == refineData$Payload[i]) &
+               (refineData$Target[y]  == refineData$Target[i])){
+              refineData$TAG[y] <- paste0("I",inTAG)
+            }
           }
         }
         inTAG <- inTAG + 1
@@ -169,7 +171,7 @@ newList
 #CONFIDENCE => Representa a probabiliade de um item Y estar junto com um item X
 
 #LIFT => Calcula a relação entre a confiança da regra e o suporte de um conjunto de itens na regra consequente
-rules <- apriori(newList, parameter= list(supp=0.001, conf=0.1, target="rules", minlen=2),
+rules <- apriori(newList, parameter= list(supp=0.001, conf=0.5, target="rules", minlen=2),
                  appearance = list(lhs=input, default="rhs"))
 # is.redundant(rules,measure = "confidence")
 #inspect(head(rules[is.redundant(rules)], by = "lift"))

@@ -13,8 +13,8 @@ library(stringr)
 library(arules)
 library(devtools)
 library(arulesViz)
-packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/hempsApptest.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
-nodeTarget  <- 512	### N? alvo da extra??o das depend?ncias.(Devemos depois criar um laco onde passe por todos os nos da rede)
+packet <- read_excel("/home/weslley/Documentos/teste3.xlsx") ### Local onde fica o arquivo com os dados da simulacao.
+nodeTarget  <- 515	### N? alvo da extra??o das depend?ncias.(Devemos depois criar um laco onde passe por todos os nos da rede)
 targetNode <- packet[packet$Target == nodeTarget, ]  ### Todos as linhas com Target == nodeTarget  
 sourceNode <- packet[packet$Source == nodeTarget, ]  ### Todos as linhas com Source == nodeTarget
 mergedTable <- merge(x = targetNode, y = sourceNode, ### Uniao das duas tabelas aneriores.
