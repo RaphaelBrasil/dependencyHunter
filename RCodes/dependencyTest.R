@@ -3,7 +3,11 @@ library(stringr)
 library(arules)
 library(devtools)
 library(arulesViz)
-packet <- read_excel("/home/weslley/Documentos/teste3.xlsx") 
+#packet <- read.table("/home/weslley/Documentos/5x5app - 16 buffer - 225 ms.txt")
+packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/teste3.xlsx") 
+colnames(packet) <- c("Timestamp", "CurrentNode",	"Service",	"Payload", "a", "b", "Target", "c", "d", "e", "Source", "f", "g", "h")
+drops <- c("a","b","c","d","e","f","g","h")
+packet <- packet[ , !(names(packet) %in% drops)]
 NodeMessages <- packet[packet$Service==20, ] 
 tNode <- unique(NodeMessages$Target)
 finalT <- data.frame()
@@ -14,7 +18,7 @@ for (nodeTarget in tNode){
   targetNode <- NodeMessages[NodeMessages$Target == nodeTarget, ]  ### Todos as linhas com Target == nodeTarget  
   sourceNode <- NodeMessages[NodeMessages$Source == nodeTarget, ]  ### Todos as linhas com Source == nodeTarget
   mergedTable <- merge(x = targetNode, y = sourceNode, ### Uniao das duas tabelas aneriores.
-                       by = c("Timestamp","Source","CurrentNode","Service","Payload","Target","TAG"), all = TRUE)
+                       by = c("Timestamp","CurrentNode","Service","Payload","Target","Source","TAG"), all = TRUE)
   
   refineData <- subset(mergedTable, !(Source != CurrentNode & CurrentNode != Target)) 
   refineData <- subset(refineData, (CurrentNode != Target))
@@ -34,8 +38,9 @@ for (nodeTarget in tNode){
               refineData$TAG[y] <- paste0("I",inTAG)
             }
           }
+          inTAG <- inTAG + 1
         }
-        inTAG <- inTAG + 1
+        #inTAG <- inTAG + 1
       }
     }
     x <- refineData$TAG <- 0
@@ -74,10 +79,10 @@ for (nodeTarget in tNode){
               refineData$TAG[y] <- paste0("I",inTAG)
             }
           }
+          inTAG <- inTAG + 1
         }
-
       }
-      inTAG <- inTAG + 1
+      #inTAG <- inTAG + 1
     }
 
     for(i in 1:(numRow)){
@@ -99,7 +104,6 @@ for (nodeTarget in tNode){
 
   
   x <- refineData
-  print(x)
   finalT <- rbind(finalT,x)
 }
 
@@ -129,7 +133,7 @@ for(i in 1:(g)){           #La?o auxiliar que cria listas na lista original, ins
     }
   }
 }
-l
+#l
 # Identifica quais são os antecedentes para as regras (usado no lhs) 
 L <- length(l)
 input = c()
@@ -165,13 +169,17 @@ for (i in 1:L){
     }
   }
 }
-newList
+#newList
+
+nTag <- unique(finalT$TAG)
+nTag
+
 #SUPPORT => O support de um itemset X é a proporção das transações em que o X aparece. Significa a popularidade de um itemset
 
 #CONFIDENCE => Representa a probabiliade de um item Y estar junto com um item X
 
 #LIFT => Calcula a relação entre a confiança da regra e o suporte de um conjunto de itens na regra consequente
-rules <- apriori(newList, parameter= list(supp=0.001, conf=0.5, target="rules", minlen=2),
+rules <- apriori(newList, parameter= list(supp=0.001, conf=0.8, target="rules", minlen=2),
                  appearance = list(lhs=input, default="rhs"))
 # is.redundant(rules,measure = "confidence")
 #inspect(head(rules[is.redundant(rules)], by = "lift"))
