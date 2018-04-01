@@ -1,14 +1,15 @@
-library(readxl)
 library(stringr)
 library(arules)
-library(devtools)
-library(arulesViz)
-#packet <- read.table("/home/weslley/Documentos/5x5app - 16 buffer - 225 ms.txt")
-packet <- read_excel("/home/weslley/Documentos/Github/dependencyHunter/APPs/teste3.xlsx") 
+
+packet <- read.table("/Users/weslley/Documents/Simulações/6x6/tgff10 - 6x6.txt")
 colnames(packet) <- c("Timestamp", "CurrentNode",	"Service",	"Payload", "a", "b", "Target", "c", "d", "e", "Source", "f", "g", "h")
-drops <- c("a","b","c","d","e","f","g","h")
+drops <- c("a","c","d","e","f","g","h")
 packet <- packet[ , !(names(packet) %in% drops)]
 NodeMessages <- packet[packet$Service==20, ] 
+NodeMessages <- NodeMessages[NodeMessages$b==9, ]
+drops <- c("b")
+NodeMessages <- NodeMessages[ , !(names(NodeMessages) %in% drops)]
+
 tNode <- unique(NodeMessages$Target)
 finalT <- data.frame()
 NodeMessages$TAG <- 0
@@ -24,7 +25,7 @@ for (nodeTarget in tNode){
   refineData <- subset(refineData, (CurrentNode != Target))
   numRow<- NROW(refineData)
   
-######### Loop para nodes apenas envia msg
+  ######### Loop para nodes apenas envia msg
   if((nodeTarget %in% refineData$Source) == TRUE & (nodeTarget %in% refineData$Target) == FALSE){
     for(i in 1:(numRow)){
       if(refineData$TAG[i] == 0){
@@ -45,7 +46,7 @@ for (nodeTarget in tNode){
     }
     x <- refineData$TAG <- 0
   }
-######## Loop para nodes apenas recebe msg
+  ######## Loop para nodes apenas recebe msg
   if((nodeTarget %in% refineData$Target) == TRUE & (nodeTarget %in% refineData$Source) == FALSE ){
     for(i in 1:(numRow)){
       if(refineData$TAG[i] == 0){
@@ -65,7 +66,7 @@ for (nodeTarget in tNode){
     }
     x <- refineData$TAG <- 0
   }
-###### Loop para nodes que enviam e recebem msgs
+  ###### Loop para nodes que enviam e recebem msgs
   if((nodeTarget %in% refineData$Source) == TRUE & (nodeTarget %in% refineData$Target) == TRUE){
     for(i in 1:(numRow)){
       if(refineData$TAG[i] == 0){
@@ -84,7 +85,7 @@ for (nodeTarget in tNode){
       }
       #inTAG <- inTAG + 1
     }
-
+    
     for(i in 1:(numRow)){
       if(refineData$TAG[i] == 0){
         refineData$TAG[i] <- outTAG
@@ -100,8 +101,8 @@ for (nodeTarget in tNode){
       }
     }
   }
-
-
+  
+  
   
   x <- refineData
   finalT <- rbind(finalT,x)
@@ -170,23 +171,41 @@ for (i in 1:L){
   }
 }
 #newList
-
 nTag <- unique(finalT$TAG)
 nTag
+tNode
+tagUnique <- unique(finalT[,-1])
+#write.table(tagUnique, "tag - tgff6 - 6x6.txt", sep = "\t", row.names = FALSE)
 
 #SUPPORT => O support de um itemset X é a proporção das transações em que o X aparece. Significa a popularidade de um itemset
 
 #CONFIDENCE => Representa a probabiliade de um item Y estar junto com um item X
 
 #LIFT => Calcula a relação entre a confiança da regra e o suporte de um conjunto de itens na regra consequente
-rules <- apriori(newList, parameter= list(supp=0.001, conf=0.8, target="rules", minlen=2),
+
+#classifier <- CBA(tNode ~ ., data = finalT, supp = 0.01, conf=0.9, lhs.support=TRUE)
+
+#result <- predict(classifier, finalT)
+
+rules <- apriori(newList, parameter= list(supp=0.001, conf=0.2, target="rules", minlen=2),
                  appearance = list(lhs=input, default="rhs"))
+inspect(rules)
+#rules <- eclat(newList, parameter = list(supp = 0.001, minlen = 2), control = NULL)
+
+ec  <- eclat(newList, parameter = list(support = 0.001))
+rec <- ruleInduction(ec, confidence = 0.2)
+inspect(ec)
+rec
+inspect(rec)
+inspect(subset( rec, subset = lhs %pin% input) )
+
 # is.redundant(rules,measure = "confidence")
 #inspect(head(rules[is.redundant(rules)], by = "lift"))
-#inspect(rules[!is.redundant(rules)])
-inspect(rules)
+#inspect(rules[is.redundant(rules)])
+
 summary(rules)
 inspect(head(rules, by= "lift"))
+image(tidLists(rec))
 plot(rules)
 plot(rules, method="graph", control=list(type="items"))
 plotly_arules(rules[is.redundant(rules)], method = "scatterplot", measure = c("support","confidence"), shading = "lift", max = 1000)
