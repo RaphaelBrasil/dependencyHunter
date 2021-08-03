@@ -1,14 +1,14 @@
 ###################################### DependencyHunter ######################################
 ###											   ###
 
-Código com intuito de encontrar e extrair as dependências enntre os pacotes em aplicações do
+CÃ³digo com intuito de encontrar e extrair as dependÃªncias enntre os pacotes em aplicaÃ§Ãµes do
 HEMPS.
 
 Desenvolvido em conjunto por:
 Raphael Brasil
 Weslley Nojosa
 
-IFCE Campus Maracanaú - 2017
+IFCE Campus MaracanaÃº - 2017
 
 ###											   ###
 ###################################### DependencyHunter ######################################
@@ -16,7 +16,7 @@ IFCE Campus Maracanaú - 2017
 ##############################################################################################
 ###											   ###
 
-Depositório organizado da seguinte maneira:
-/DependencyHynter/APPs                // Arquivos com os resultados das simulações de cada apçicação testada, em formato xlsx //
-/DependencyHynter/HEMPS               // Arquivos com manual de instalação e diferentes versões do HEMPS                      //
-/DependencyHynter/RCodes              // Arquivos com os códigos do programa para extração das dependências, criado em R      //
+RepositÃ³rio organizado da seguinte maneira:
+/DependencyHynter/APPs                // Arquivos com os resultados das simulaÃ§Ãµes de cada apÃ§icaÃ§Ã£o testada, em formato xlsx //
+/DependencyHynter/HEMPS               // Arquivos com manual de instalaÃ§Ã£o e diferentes versÃµes do HEMPS                      //
+/DependencyHynter/RCodes              // Arquivos com os cÃ³digos do programa para extraÃ§Ã£o das dependÃªncias, criado em R      //
